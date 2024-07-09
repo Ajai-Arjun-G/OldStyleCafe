@@ -108,8 +108,12 @@ coffee = pygame.image.load('D:/Term - 4/Pygame/food/coffee-cup.png').convert_alp
 requesttoast = pygame.image.load('D:/Term - 4/Pygame/food/toast.png').convert_alpha()
 requestcoffee = pygame.image.load('D:/Term - 4/Pygame/food/coffee-cup.png').convert_alpha()
 
-requestcoffee = pygame.transform.smoothscale(requestcoffee,(80,80))
-requesttoast = pygame.transform.smoothscale(requesttoast,(80,80))
+requestcoffee = pygame.transform.smoothscale(requestcoffee,(70,70))
+requesttoast = pygame.transform.smoothscale(requesttoast,(90,90))
+
+# Request
+request = pygame.image.load('D:/Term - 4/Pygame/People/speech-bubble.png').convert_alpha()
+request = pygame.transform.smoothscale(request,(200,200))
 
 # Resize food
 bread = pygame.transform.smoothscale(bread, (150, 150))
@@ -149,6 +153,13 @@ tab_rect = money_tab.get_rect(center=(1150, 90))
 # Rectangle for the bank
 coin_rect = coin.get_rect(center=(1190, 80))
 
+#Rectangle for bubble
+req_rect = request.get_rect(midbottom = (1050,400))
+
+#Rectangle for the coffee and bread
+reqcof_rect = requestcoffee.get_rect(center = (1060,290))
+reqtost_rect = requesttoast.get_rect(center = (1060,290))
+
 # Detect Collision - flag bit
 collision_detected = False
 bread_flag = False
@@ -171,8 +182,8 @@ coffee_float = 0
 person_float = 0
 
 #How much should they move around
-float_distance = 2
-float_speed = 1
+float_distance = 3
+float_speed = 2
 
 # Score
 score = 0
@@ -192,11 +203,17 @@ def randomly_select_person():
     image = random.choice(all_people_images[category])
     return image
 
+def random_select_req():
+    return random.choice(['coffee','toast'])
+
 def randomly_select_cloud():
     return random.choice(['cloud1', 'cloud2', 'cloud3', 'cloud4'])
 
 current_person = randomly_select_person()
 current_cloud = randomly_select_cloud()
+
+bread_initial_y = bread_rect.centery
+coffee_initial_y = coffee_rect.centery
 
 # Main loop - to keep the game running
 while True:
@@ -245,6 +262,7 @@ while True:
     # Check if it's time for a new person to appear
     if current_time >= person_timer and not person_appeared:
         current_person = randomly_select_person()
+        val = random_select_req()
         person_appeared = True
         person_timer = current_time + person_display_time
 
@@ -257,22 +275,29 @@ while True:
 
     # Display the current person if appeared
     if person_appeared:
+        screen.blit(request,req_rect)
+        if val == 'toast':
+            screen.blit(requesttoast,reqtost_rect)
+            target = 'toast'
+        else:
+            screen.blit(requestcoffee,reqcof_rect)
+            target = 'coffee'
         screen.blit(current_person, person_rect)
 
     # Handle bread display and person disappearance
     if bread_flag:
-        bread_rect.centery += int(bread_float_offset)
+        bread_rect.centery = bread_initial_y + int(bread_float_offset)
         screen.blit(bread, bread_rect)
-        if current_time > bread_timer:
+        if current_time > bread_timer and target == 'toast':
             person_appeared = False
             bread_flag = False
             score += 1  # Increase score
 
     # Handle coffee display and person disappearance
     if coffee_flag:
-        coffee_rect.centery += int(coffee_float_offset)
+        coffee_rect.centery = coffee_initial_y + int(coffee_float_offset)
         screen.blit(coffee, coffee_rect)
-        if current_time > coffee_timer:
+        if current_time > coffee_timer and target == 'coffee':
             person_appeared = False
             coffee_flag = False
             score += 1  # Increase score
@@ -302,7 +327,6 @@ while True:
             cloud4_rect = cloudSurface4.get_rect(center=(1400, random.randint(50, 150)))
 
     screen.blit(money_tab, tab_rect)
-
     # Display score
     score_text = custom_font.render(f"{score}", True, (0, 0, 0))  # Adjust text color as needed
     score_text_rect = score_text.get_rect(center=(tab_rect.centerx, tab_rect.centery))
