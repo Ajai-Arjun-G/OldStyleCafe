@@ -2,8 +2,17 @@ import pygame
 import random
 from sys import exit
 import math
+import os
 
 pygame.init()
+
+# Initialize the mixer
+pygame.mixer.init()
+
+# Load and play background music
+music_file = os.path.join("D:/Term - 4/Pygame/audio", "Sakura-Girl-Daisy-chosic.com_.mp3")
+pygame.mixer.music.load(music_file)
+pygame.mixer.music.play(-1)  # -1 means the music will loop indefinitely
 
 displaySize = (1255, 800)
 screen = pygame.display.set_mode(displaySize, pygame.RESIZABLE)
